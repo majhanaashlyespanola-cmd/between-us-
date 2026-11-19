@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Between Us ♡</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Georgia, serif;
+    background: #fff4f5;
+    color: #513b42;
+}
+
+header {
+    background: #f7dce2;
+    text-align: center;
+    padding: 25px 12px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 30px;
+}
+
+.container {
+    width: 92%;
+    max-width: 600px;
+    margin: 25px auto;
+}
+
+.page {
+    display: none;
+    background: white;
+    padding: 23px;
+    border-radius: 18px;
+    box-shadow: 0 4px 15px #00000012;
+}
+
+.page.active {
+    display: block;
+}
+
+h2 {
+    text-align: center;
+}
+
+p {
+    line-height: 1.6;
+}
+
+button, select, textarea {
+    width: 100%;
+    padding: 13px;
+    margin-top: 12px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+}
+
+button {
+    border: none;
+    background: #bd7187;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+select, textarea {
+    border: 1px solid #e6cbd2;
+    background: #fffafa;
+    color: #513b42;
+}
+
+textarea {
+    min-height: 130px;
+    resize: vertical;
+}
+
+.small {
+    font-size: 13px;
+    color: #967d84;
+    text-align: center;
+}
+
+.progress-bg {
+    width: 100%;
+    height: 13px;
+    background: #f0e3e6;
+    border-radius: 20px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #bd7187;
+    transition: width .3s;
+}
+
+.status {
+    padding: 12px;
+    border-radius: 10px;
+    background: #fff0f3;
+    margin-top: 12px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.notebook {
+    background: #fff8f9;
+    border: 1px solid #ead3da;
+    padding: 15px;
+    margin-top: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.notebook.new-message {
+    animation: shake .5s;
+    border: 2px solid #bd7187;
+}
+
+@keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.message {
+    background: #fff5f7;
+    border-left: 4px solid #bd7187;
+    padding: 13px;
+    margin-top: 12px;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+
+.message small {
+    color: #967d84;
+}
+
+.back {
+    background: #8f727c;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: #967d84;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Between Us ♡</h1>
+    <p>A little place for our memories, words, and friendship.</p>
+</header>
+
+<div class="container">
+
+<section id="welcome" class="page active">
+    <h2>Welcome, Classmates! ♡</h2>
+    <p>
+        Welcome to our little class space! Leave meaningful
+        messages for your classmates and create memories together.
+    </p>
+    <button onclick="showPage('rules')">GET STARTED</button>
+</section>
+
+<section id="rules" class="page">
+    <h2>Before We Begin ♡</h2>
+    <p>1. Choose your correct name.</p>
+    <p>2. Send one message to each of your 25 classmates.</p>
+    <p>3. Be respectful and kind with your words.</p>
+    <p>4. Avoid harmful or inappropriate messages.</p>
+    <p>5. Messages will appear in the recipient's notebook.</p>
+
+    <button onclick="showPage('choose')">I UNDERSTAND</button>
+    <button class="back" onclick="showPage('welcome')">BACK</button>
+</section>
+
+<section id="choose" class="page">
+    <h2>Choose Your Name ♡</h2>
+    <p class="small">Select your name to continue.</p>
+
+    <select id="studentSelect">
+        <option value="">-- Select your name --</option>
+    </select>
+
+    <button onclick="proceed()">PROCEED</button>
+    <button class="back" onclick="showPage('rules')">BACK</button>
+
+    <div id="chooseStatus" class="status" hidden></div>
+</section>
+
+<section id="messages" class="page">
+    <h2>Write a Message ♡</h2>
+
+    <p class="small">Your progress</p>
+    <h3 id="progressText" style="text-align:center;">0 / 25</h3>
+
+    <div class="progress-bg">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <p id="recipientText"></p>
+
+    <textarea id="messageInput"
+        maxlength="1000"
+        placeholder="Write something nice for your classmate...">
+    </textarea>
+
+    <p class="small" id="charCount">0 / 1000 characters</p>
+
+    <button id="sendBtn" onclick="sendMessage()">SEND MESSAGE</button>
+
+    <div id="sendStatus" class="status" hidden></div>
+
+    <button class="back" onclick="exitMessages()">EXIT</button>
+</section>
+
+<section id="completed" class="page">
+    <h2>All Messages Sent! ♡</h2>
+    <p>
+        Thank you for sending a message to all 25 of your classmates.
+        You can now explore everyone's notebooks!
+    </p>
+    <button onclick="openNotebooks()">OPEN NOTEBOOKS</button>
+</section>
+
+<section id="notebooks" class="page">
+    <h2>Class Notebooks ♡</h2>
+    <p class="small">Choose a notebook to read its messages.</p>
+
+    <div id="notebookList"></div>
+
+    <button class="back" onclick="showPage('completed')">BACK</button>
+</section>
+
+<section id="notebookView" class="page">
+    <h2 id="notebookTitle">Notebook ♡</h2>
+    <div id="notebookMessages"></div>
+
+    <button class="back" onclick="showPage('notebooks')">
+        BACK TO NOTEBOOKS
+    </button>
+</section>
+
+</div>
+
+<footer>
+    Made with love for Grade 12 Poseidon ♡
+</footer>
+
+<script>
+
+/* CLASS ROSTER */
+
+const students = [
+    "Alcarioto, Salvador Jim Alminaza",
+    "Bansuli, Zeledrick Amen",
+    "Calambro, Aldrin Caya",
+    "Cerbo, John Rey Mecenas",
+    "Diang, Nasser Jr Salarda",
+    "Patanao, John Eure Alimaya",
+    "Salarda, Jaije Cleofas",
+    "Siaton, John Gilbert Salarda",
+    "Tanan, Sern Jheo Ervite",
+    "Villa, Richelle Kyle Herradura",
+    "Alingaongao, Arianne Salarda",
+    "Alminaza, Prens Shanel Mabaquiao",
+    "Amatorio, Queen Thea Gramiles",
+    "Anas, Juhlia Bautista",
+    "Aurio, Nikka Campano",
+    "Bernadas, Cristine Bacudio",
+    "Brabanzo, Princess Devie Animas",
+    "Mofiajenyl A. Amodia",
+    "Caraya, Lawrence Cabangisan",
+    "Cantero, Ma. Christine Mae Tungala",
+    "Española, Ma. Jhana Ashly Cañonero",
+    "Mabaquiao, Elcar Bainggan",
+    "Parreño, Allyza Anzures",
+    "Posecion, Ianna Joy Cabalfin",
+    "Tamon, Rovie Jane Sinoro",
+    "Vera, Kyle Vennesse Anabo"
+];
+
+
+/* LOCAL STORAGE */
+
+const STORAGE_KEY = "between_us_class_messages_v1";
+
+let currentStudent = "";
+let sentRecipients = [];
+let messages = [];
+
+function loadData() {
+    try {
+        const saved = JSON.parse(
+            localStorage.getItem(STORAGE_KEY) || "{}"
+        );
+
+        messages = Array.isArray(saved.messages)
+            ? saved.messages
+            : [];
+
+    } catch (error) {
+        messages = [];
+    }
+}
+
+function saveData() {
+    try {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({ messages })
+        );
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+
+/* PAGE NAVIGATION */
+
+function showPage(id) {
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+    });
+
+    document.getElementById(id).classList.add("active");
+
+    window.scrollTo(0, 0);
+}
+
+
+/* LOAD NAMES */
+
+function loadNames() {
+    const select = document.getElementById("studentSelect");
+
+    students.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+    });
+}
+
+
+/* PROGRESS */
+
+function getSentRecipients() {
+    return messages
+        .filter(message => message.senderName === currentStudent)
+        .map(message => message.recipientName);
+}
+
+function getRemainingRecipients() {
+    return students.filter(name =>
+        name !== currentStudent &&
+        !sentRecipients.includes(name)
+    );
+}
+
+function proceed() {
+    const selected = document.getElementById("studentSelect").value;
+    const status = document.getElementById("chooseStatus");
+
+    if (!selected) {
+        status.hidden = false;
+        status.textContent = "Please select your name first.";
+        return;
+    }
+
+    currentStudent = selected;
+    sentRecipients = getSentRecipients();
+
+    if (sentRecipients.length >= 25) {
+        showPage("completed");
+        return;
+    }
+
+    showPage("messages");
+    updateProgress();
+}
+
+function updateProgress() {
+    sentRecipients = getSentRecipients();
+
+    const count = sentRecipients.length;
+
+    document.getElementById("progressText").textContent =
+        count + " / 25";
+
+    document.getElementById("progressBar").style.width =
+        (count / 25 * 100) + "%";
+
+    if (count >= 25) {
+        showPage("completed");
+        return;
+    }
+
+    const remaining = getRemainingRecipients();
+
+    document.getElementById("recipientText").textContent =
+        "Write a message for: " + remaining[0];
+
+    document.getElementById("messageInput").value = "";
+    document.getElementById("charCount").textContent =
+        "0 / 1000 characters";
+
+    document.getElementById("sendStatus").hidden = true;
+    document.getElementById("sendBtn").disabled = false;
+    document.getElementById("sendBtn").textContent = "SEND MESSAGE";
+}
+
+
+/* SEND MESSAGE */
+
+function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const button = document.getElementById("sendBtn");
+    const status = document.getElementById("sendStatus");
+
+    const text = input.value.trim();
+    const remaining = getRemainingRecipients();
+
+    if (!text) {
+        status.hidden = false;
+        status.textContent = "Please write a message first.";
+        return;
+    }
+
+    if (!remaining.length) {
+        showPage("completed");
+        return;
+    }
+
+    const recipient = remaining[0];
+
+    button.disabled = true;
+    button.textContent = "SAVING...";
+
+    const newMessage = {
+        id: Date.now() + "_" + Math.random().toString(36).slice(2),
+        senderName: currentStudent,
+        recipientName: recipient,
+        text: text,
+        date: new Date().toISOString()
+    };
+
+    messages.push(newMessage);
+
+    if (!saveData()) {
+        messages.pop();
+
+        status.hidden = false;
+        status.textContent =
+            "Unable to save. Your browser storage may be full or unavailable.";
+
+        button.disabled = false;
+        button.textContent = "TRY AGAIN";
+        return;
+    }
+
+    sentRecipients = getSentRecipients();
+
+    status.hidden = false;
+    status.textContent = "Message successfully saved! ♡";
+
+    renderNotebooks();
+
+    setTimeout(() => {
+        updateProgress();
+    }, 800);
+}
+
+
+/* CHARACTER COUNT */
+
+document.getElementById("messageInput").addEventListener("input", function() {
+    document.getElementById("charCount").textContent =
+        this.value.length + " / 1000 characters";
+});
+
+
+/* EXIT */
+
+function exitMessages() {
+    currentStudent = "";
+    sentRecipients = [];
+
+    document.getElementById("studentSelect").value = "";
+
+    showPage("welcome");
+}
+
+
+/* NOTEBOOKS */
+
+function openNotebooks() {
+    renderNotebooks();
+    showPage("notebooks");
+}
+
+function renderNotebooks() {
+    const list = document.getElementById("notebookList");
+
+    list.innerHTML = "";
+
+    students.forEach(name => {
+        const count = messages.filter(message =>
+            message.recipientName === name
+        ).length;
+
+        const notebook = document.createElement("div");
+        notebook.className = "notebook";
+
+        const title = document.createElement("strong");
+        title.textContent = "📖 " + name;
+
+        const detail = document.createElement("p");
+        detail.className = "small";
+        detail.textContent = count + " message(s)";
+
+        notebook.appendChild(title);
+        notebook.appendChild(detail);
+
+        notebook.addEventListener("click", () => {
+            openNotebook(name);
+        });
+
+        list.appendChild(notebook);
+    });
+}
+
+
+/* OPEN NOTEBOOK */
+
+function openNotebook(name) {
+    const title = document.getElementById("notebookTitle");
+    const container = document.getElementById("notebookMessages");
+
+    title.textContent = name + "'s Notebook ♡";
+    container.innerHTML = "";
+
+    const received = messages
+        .filter(message => message.recipientName === name)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (received.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent =
+            "No messages yet. Your notebook is waiting for messages. ♡";
+
+        container.appendChild(empty);
+    }
+
+    received.forEach(message => {
+        const box = document.createElement("div");
+        box.className = "message";
+
+        const sender = document.createElement("strong");
+        sender.textContent = "From: " + message.senderName;
+
+        const content = document.createElement("p");
+        content.textContent = message.text;
+
+        const date = document.createElement("small");
+        date.textContent = new Date(message.date).toLocaleString();
+
+        box.appendChild(sender);
+        box.appendChild(content);
+        box.appendChild(date);
+
+        container.appendChild(box);
+    });
+
+    showPage("notebookView");
+}
+
+
+/* INITIALIZATION */
+
+loadNames();
+loadData();
+renderNotebooks();
+
+</script>
+
+</body>
+</html>
